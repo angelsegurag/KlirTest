@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace Klir.API.Controllers
 {
@@ -10,36 +11,30 @@ namespace Klir.API.Controllers
     [ApiController]
     public class ValuesController : ControllerBase
     {
+        private WeatherSqLiteContext _context;
+        public ValuesController(WeatherSqLiteContext context)
+        {
+            _context = context;
+        }
+
         // GET api/values
         [HttpGet]
         public ActionResult<IEnumerable<string>> Get()
         {
-            return new string[] { "value1", "value2" };
+            var rng = new Random();
+            var number = Math.Round((decimal)rng.Next(0, 100), 0);
+            //Randomly return an Error 
+            if (number % 2 == 0) return Ok(
+                    GetData()
+                );
+            else //Return error 500 
+                return StatusCode(500);
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        private string GetData()
         {
-            return "value";
-        }
-
-        // POST api/values
-        [HttpPost]
-        public void Post([FromBody] string value)
-        {
-        }
-
-        // PUT api/values/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE api/values/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
+            var ret = _context.Forecasts.ToList();
+            return JsonConvert.SerializeObject(ret);
         }
     }
 }

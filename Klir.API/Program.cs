@@ -19,6 +19,7 @@ namespace Klir.API
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseUrls(new string[] { "https://0.0.0.0:5001" })
                 .UseStartup<Startup>();
     }
 }
