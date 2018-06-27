@@ -19,6 +19,7 @@ namespace KlirTest
 
         public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .UseUrls(new string[] { "http://0.0.0.0:3000" })
                 .UseStartup<Startup>();
     }
 }

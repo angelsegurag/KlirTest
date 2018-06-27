@@ -1,44 +1,34 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 
-namespace KlirTest.Controllers
+namespace Klir.Angular.Controllers
 {
     [Route("api/[controller]")]
     public class SampleDataController : Controller
     {
-        private static string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private const string GET_WEATHER = "/api/values";
 
-        [HttpGet("[action]")]
-        public IEnumerable<WeatherForecast> WeatherForecasts()
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public SampleDataController(IHttpClientFactory httpClientFactory)
         {
-            var rng = new Random();
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
-            {
-                DateFormatted = DateTime.Now.AddDays(index).ToString("d"),
-                TemperatureC = rng.Next(-20, 55),
-                Summary = Summaries[rng.Next(Summaries.Length)]
-            });
+            _httpClientFactory = httpClientFactory;
         }
 
-        public class WeatherForecast
+        [HttpGet("[action]")]
+        public async Task<IEnumerable<Klir.Model.WeatherForecast>> WeatherForecasts()
         {
-            public string DateFormatted { get; set; }
-            public int TemperatureC { get; set; }
-            public string Summary { get; set; }
+            var client = _httpClientFactory.CreateClient("Klir");
 
-            public int TemperatureF
-            {
-                get
-                {
-                    return 32 + (int)(TemperatureC / 0.5556);
-                }
-            }
+            var ret = await client.GetStringAsync(GET_WEATHER);
+
+            return JsonConvert.DeserializeObject<IEnumerable<Klir.Model.WeatherForecast>>(ret);
         }
     }
 }

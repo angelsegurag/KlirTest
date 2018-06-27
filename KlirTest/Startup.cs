@@ -5,6 +5,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SpaServices.AngularCli;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Polly;
+using System;
 
 namespace KlirTest
 {
@@ -27,6 +29,17 @@ namespace KlirTest
             {
                 configuration.RootPath = "ClientApp/dist";
             });
+
+            services.AddHttpClient("Klir", client =>
+            {
+                client.BaseAddress = new Uri("https://localhost:5001");
+            })
+            .AddTransientHttpErrorPolicy(builder => builder.WaitAndRetryAsync(new[]
+            {
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(2),
+                TimeSpan.FromSeconds(6)
+            }));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
